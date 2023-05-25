@@ -9,10 +9,13 @@ class DBProductCategory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
+    products = relationship("DBProduct",
+                            back_populates="product_category",
+                            cascade="all, delete-orphan")
 
 
 class DBProduct(Base):
-    __table_name__ = "products"
+    __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
