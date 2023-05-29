@@ -63,3 +63,16 @@ def update_category(
     return db_product_category
 
 
+@app.get("/just/products/", response_model=list[schemas.Product])
+def read_products(
+        db: Session = Depends(get_db),
+        limit: int = 10,
+        name: str = None,
+        product_category_id: int = None
+):
+    return crud.get_product_list(
+        db=db,
+        limit=limit,
+        name=name,
+        product_category_id=product_category_id
+    )
