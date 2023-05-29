@@ -109,3 +109,16 @@ def update_product(db: Session, product: schemas.ProductUpdate, product_id: int)
     db.refresh(db_product)
     return db_product
 
+
+def partial_update_product(db: Session, product: schemas.ProductPartialUpdate, product_id: int):
+    db_product = db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
+    db_product.name = product.name if product.name else db_product.name
+    db_product.description = product.description if product.description else db_product.description
+    db_product.price = product.price if product.price else db_product.price
+    db_product.created_at = product.created_at if product.created_at else db_product.created_at
+    db_product.category_id = product.product_category_id if product.product_category_id else db_product.product_category_id
+
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product

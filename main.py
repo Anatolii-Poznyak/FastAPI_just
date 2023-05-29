@@ -62,3 +62,4 @@ def update_category(
                                                        db=db)
     return db_product_category
 
+
