@@ -43,7 +43,7 @@ class ProductPartialUpdate(BaseModel):
     description: str | None
     price: int | None
     created_at: date | None
-    product_category: ProductCategoryBase | None
+    product_category_id: int | None
 
 
 class Product(ProductBase):

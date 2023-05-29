@@ -96,3 +96,16 @@ def create_product(db: Session, product: schemas.ProductCreate):
     db.refresh(db_product)
     return db_product
 
+
+def update_product(db: Session, product: schemas.ProductUpdate, product_id: int):
+    db_product = db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
+    db_product.name = product.name
+    db_product.description = product.description
+    db_product.price = product.price
+    db_product.created_at = product.created_at
+    # TODO db.add? Am I Sure?
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
+
