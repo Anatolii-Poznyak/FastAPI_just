@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 
@@ -78,10 +80,18 @@ def read_products(
     )
 
 
-@app.get("/just/products/{product_id}", response_model=schemas.Product)
+@app.get("/just/products/{product_id}/", response_model=schemas.Product)
 def read_single_product(
         product_id: int,
         db: Session = Depends(get_db)
 ):
     return crud.get_product(db=db, product_id=product_id)
+
+
+@app.post("/just/products/", response_model=schemas.ProductCreate)
+def create_product(
+        product: schemas.ProductCreate,
+        db: Session = Depends(get_db)
+):
+    return crud.create_product(db=db, product=product)
 
