@@ -13,6 +13,8 @@ def get_product_category_list(
         return queryset.filter(models.DBProductCategory.name.icontains(name)).all()
     return queryset
 
+
+
 #TODO Get rid of code duplications !
 def get_product_category(
         db: Session,
