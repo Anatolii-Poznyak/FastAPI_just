@@ -22,6 +22,7 @@ def get_product_category(
 ):
     return db.query(models.DBProductCategory).filter(models.DBProductCategory.id == product_category_id).first()
 
+#TODO mb we can doi it by get_author_or_404?
 
 def delete_product_category(
         db: Session,
@@ -42,6 +43,19 @@ def create_product_category(
     db.add(db_product_category)
     db.commit()
     db.refresh(db_product_category)
+
+
+def update_product_category(
+        db: Session,
+        product_category_id: int,
+        product_category: schemas.ProductCategoryUpdate
+):
+    db_product_category = db.query(models.DBProductCategory).filter(models.DBProductCategory.id == product_category_id).first()
+    db_product_category.name = product_category.name
+    db.add(db_product_category)
+    db.commit()
+    db.refresh(db_product_category)
+    return db_product_category
 
 
 def get_product_list(
