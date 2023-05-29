@@ -1,11 +1,18 @@
-from datetime import date
-
-from fastapi import FastAPI, Depends
+from datetime import date, timedelta
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from starlette import status
 import crud
 import schemas
 from db.engine import SessionLocal
+from security import (
+create_access_token,
+oauth_2_scheme,
+ACCESS_TOKEN_EXPIRE_MINUTES,
+get_current_user,
+authenticate_user
+)
 
 app = FastAPI()
 
@@ -117,3 +124,45 @@ def partial_update_product(
         db: Session = Depends(get_db)
 ):
     return crud.partial_update_product(product_id=product_id, product=product, db=db)
+
+
+@app.post("/token/", response_model=schemas.Token)
+def login(
+        db: Session = Depends(get_db),
+        form_data: OAuth2PasswordRequestForm = Depends()
+):
+    user = authenticate_user(
+        db=db,
+        username=form_data.username,
+        password=form_data.password
+    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        username=user.username,
+        expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token-type": "bearer"}
+
+
+@app.post("/sign-up/", response_model=schemas.User)
+async def create_user(
+        user: schemas.User,
+        db: Session = Depends(get_db)
+):
+    return crud.create_user(db=db, user=user)
+
+
+@app.get("/users/me/", response_model=schemas.User)
+def read_me(
+        token=Depends(oauth_2_scheme),
+        db: Session = Depends(get_db)
+):
+    user = get_current_user(db=db, token=token)
+    return user
