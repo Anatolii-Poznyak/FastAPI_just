@@ -45,7 +45,7 @@ def create_category(
     return crud.create_product_category(db=db, product_category=product_category)
 
 
-@app.delete("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
+@app.delete("/just/product-categories/{product_category_id}/")
 def delete_single_category(
         product_category_id: int,
         db: Session = Depends(get_db)
@@ -95,3 +95,7 @@ def create_product(
 ):
     return crud.create_product(db=db, product=product)
 
+
+@app.delete("/just/products/{product_id)/")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    crud.delete_product(product_id=product_id, db=db)
