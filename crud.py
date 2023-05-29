@@ -103,7 +103,7 @@ def update_product(db: Session, product: schemas.ProductUpdate, product_id: int)
     db_product.description = product.description
     db_product.price = product.price
     db_product.created_at = product.created_at
-    # TODO db.add? Am I Sure?
+#TODO db.add? Am I Sure?
     db.add(db_product)
     db.commit()
     db.refresh(db_product)

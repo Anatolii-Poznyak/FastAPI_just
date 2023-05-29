@@ -99,3 +99,13 @@ def create_product(
 @app.delete("/just/products/{product_id)/")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     crud.delete_product(product_id=product_id, db=db)
+
+
+@app.put("/just/products/{product_id}/", response_model=schemas.ProductUpdate)
+def update_product(
+        product_id: int,
+        product: schemas.ProductUpdate,
+        db: Session = Depends(get_db)
+):
+    return crud.update_product(product_id=product_id, product=product, db=db)
+
