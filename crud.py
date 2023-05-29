@@ -40,3 +40,22 @@ def create_product_category(
     db.add(db_product_category)
     db.commit()
     db.refresh(db_product_category)
+
+
+def get_product_list(
+        db: Session,
+        limit: int = 10,
+        name: str = None,
+        product_category_id: int = None
+):
+    queryset = db.query(models.DBProduct).limit(limit).all()
+    if name:
+        return queryset.filter(models.DBProduct.name.icontains(name)).all()
+    if product_category_id:
+        return queryset.filter(models.DBProduct.product_category_id == product_category_id).first()
+
+    return queryset
+
+
+def get_product(db: Session, product_id: int):
+    return db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
