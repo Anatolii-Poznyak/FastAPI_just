@@ -35,12 +35,10 @@ def read_single_category(
 #TODO i can make if product_cat is none: raise HTTPException404 "Product not found". where i need to make this validation?
 
 
-@app.post("/just/product-categories/", response_model=schemas.ProductCategory):
+@app.post("/just/product-categories/", response_model=schemas.ProductCategoryCreate)
 def create_product_category(
-        product_category = schemas.ProductCategoryCreate,
+        product_category: schemas.ProductCategoryCreate,
         db: Session = Depends(get_db)
 ):
     return crud.create_product_category(db=db, product_category=product_category)
-
-
 
