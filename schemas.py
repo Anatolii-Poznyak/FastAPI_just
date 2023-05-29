@@ -34,6 +34,18 @@ class ProductCreate(ProductBase):
     product_category_id: int
 
 
+class ProductUpdate(ProductBase):
+    pass
+
+
+class ProductPartialUpdate(BaseModel):
+    name: str | None
+    description: str | None
+    price: int | None
+    created_at: date | None
+    product_category: ProductCategoryBase | None
+
+
 class Product(ProductBase):
     id: int
 
