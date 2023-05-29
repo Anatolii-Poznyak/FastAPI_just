@@ -109,3 +109,11 @@ def update_product(
 ):
     return crud.update_product(product_id=product_id, product=product, db=db)
 
+
+@app.patch("/just/products/{product_id)/", response_model=schemas.ProductPartialUpdate)
+def partial_update_product(
+        product_id: int,
+        product: schemas.ProductPartialUpdate,
+        db: Session = Depends(get_db)
+):
+    return crud.partial_update_product(product_id=product_id, product=product, db=db)
