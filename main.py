@@ -24,3 +24,12 @@ def read_categories(
         name: str | None = None
 ):
     return crud.get_product_category_list(db=db, limit=limit, name=name)
+
+
+@app.get("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
+def read_single_category(
+        product_category_id: int,
+        db: Session = Depends(get_db)
+):
+    return crud.get_product_category(db=db, product_category_id=product_category_id)
+
