@@ -59,3 +59,23 @@ def get_product_list(
 
 def get_product(db: Session, product_id: int):
     return db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
+
+
+def delete_product(db: Session, product_id: int):
+    db.query(models.DBProduct).filter(models.DBProduct.id == product_id).delete()
+    db.commit()
+
+
+def create_product(db: Session, product: schemas.ProductCreate):
+    db_product = models.DBProduct(
+        name=product.name,
+        description=product.description,
+        price=product.price,
+        created_at=product.created_at,
+        product_category_id=product.product_category_id
+    )
+
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
