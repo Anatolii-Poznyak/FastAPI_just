@@ -76,3 +76,12 @@ def read_products(
         name=name,
         product_category_id=product_category_id
     )
+
+
+@app.get("/just/products/{product_id}", response_model=schemas.Product)
+def read_single_product(
+        product_id: int,
+        db: Session = Depends(get_db)
+):
+    return crud.get_product(db=db, product_id=product_id)
+
