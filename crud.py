@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from db import models
 import schemas
+from security import get_password_hash
 
 
 def get_product_category_list(
@@ -122,3 +123,17 @@ def partial_update_product(db: Session, product: schemas.ProductPartialUpdate, p
     db.commit()
     db.refresh(db_product)
     return db_product
+
+
+def create_user(db: Session, user: schemas.User):
+    hashed_password = get_password_hash(user.hashed_password)
+    db_user = models.User(
+        username=user.username,
+        email=user.email,
+        full_name=user.full_name,
+        hashed_password=hashed_password
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
