@@ -50,3 +50,15 @@ def delete_single_category(
 ):
     return crud.get_product_category(db=db, product_category_id=product_category_id)
 
+
+@app.put("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
+def update_category(
+        product_category: schemas.ProductCategoryUpdate,
+        product_category_id: int,
+        db: Session = Depends(get_db)
+):
+    db_product_category = crud.update_product_category(product_category=product_category,
+                                                       product_category_id=product_category_id,
+                                                       db=db)
+    return db_product_category
+
