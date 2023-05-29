@@ -11,6 +11,10 @@ class ProductCategoryCreate(ProductCategoryBase):
     pass
 
 
+class ProductCategoryUpdate(ProductCategoryBase):
+    pass
+
+
 class ProductCategory(ProductCategoryBase):
     id: int
 

@@ -36,9 +36,17 @@ def read_single_category(
 
 
 @app.post("/just/product-categories/", response_model=schemas.ProductCategoryCreate)
-def create_product_category(
+def create_category(
         product_category: schemas.ProductCategoryCreate,
         db: Session = Depends(get_db)
 ):
     return crud.create_product_category(db=db, product_category=product_category)
+
+
+@app.delete("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
+def delete_single_category(
+        product_category_id: int,
+        db: Session = Depends(get_db)
+):
+    return crud.get_product_category(db=db, product_category_id=product_category_id)
 
