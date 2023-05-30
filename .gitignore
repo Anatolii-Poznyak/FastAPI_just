@@ -91,3 +91,8 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all
 /products-catalog.db
+__pycache__/
+alembic/__pycache__/
+alembic/versions/__pycache__/
+db/__pycache__/
+

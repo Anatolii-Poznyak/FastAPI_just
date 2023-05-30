@@ -1,17 +1,19 @@
-from datetime import date, timedelta
-from fastapi.security import OAuth2PasswordRequestForm
+from datetime import timedelta
+
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette import status
+
 import crud
 import schemas
 from db.engine import SessionLocal
 from security import (
-create_access_token,
-oauth_2_scheme,
-ACCESS_TOKEN_EXPIRE_MINUTES,
-get_current_user,
-authenticate_user
+    create_access_token,
+    oauth_2_scheme,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    get_current_user,
+    authenticate_user
 )
 
 app = FastAPI()
