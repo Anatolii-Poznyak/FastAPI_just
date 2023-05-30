@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette import status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import crud
 import schemas
@@ -40,7 +41,7 @@ async def read_categories(
 @app.get("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
 async def read_single_category(
         product_category_id: int,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
     return await crud.get_product_category(db=db, product_category_id=product_category_id)
 #TODO i can make if product_cat is none: raise HTTPException404 "Product not found". where i need to make this validation?
@@ -49,7 +50,7 @@ async def read_single_category(
 @app.post("/just/product-categories/", response_model=schemas.ProductCategory)
 async def create_category(
         product_category: schemas.ProductCategoryCreate,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
     return await crud.create_product_category(db=db, product_category=product_category)
 
@@ -57,7 +58,7 @@ async def create_category(
 @app.delete("/just/product-categories/{product_category_id}/")
 async def delete_single_category(
         product_category_id: int,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
     return await crud.delete_product_category(db=db, product_category_id=product_category_id)
 
@@ -66,7 +67,7 @@ async def delete_single_category(
 async def update_category(
         product_category: schemas.ProductCategoryUpdate,
         product_category_id: int,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
     db_product_category = await crud.update_product_category(
         product_category=product_category,
@@ -78,7 +79,7 @@ async def update_category(
 
 @app.get("/just/products/", response_model=list[schemas.Product])
 async def read_products(
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         limit: int = 10,
         name: str = None,
         product_category_id: int = None
@@ -92,46 +93,46 @@ async def read_products(
 
 
 @app.get("/just/products/{product_id}/", response_model=schemas.Product)
-def read_single_product(
+async def read_single_product(
         product_id: int,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    return crud.get_product(db=db, product_id=product_id)
+    return await crud.get_product(db=db, product_id=product_id)
 
 
 @app.post("/just/products/", response_model=schemas.Product)
-def create_product(
+async def create_product(
         product: schemas.ProductCreate,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    return crud.create_product(db=db, product=product)
+    return await crud.create_product(db=db, product=product)
 
 
 @app.delete("/just/products/{product_id)/")
-def delete_product(product_id: int, db: Session = Depends(get_db)):
-    crud.delete_product(product_id=product_id, db=db)
+async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    await crud.delete_product(product_id=product_id, db=db)
 
 
 @app.put("/just/products/{product_id}/", response_model=schemas.ProductUpdate)
-def update_product(
+async def update_product(
         product_id: int,
         product: schemas.ProductUpdate,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    return crud.update_product(product_id=product_id, product=product, db=db)
+    return await crud.update_product(product_id=product_id, product=product, db=db)
 
 
 @app.patch("/just/products/{product_id)/", response_model=schemas.ProductPartialUpdate)
-def partial_update_product(
+async def partial_update_product(
         product_id: int,
         product: schemas.ProductPartialUpdate,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    return crud.partial_update_product(product_id=product_id, product=product, db=db)
+    return await crud.partial_update_product(product_id=product_id, product=product, db=db)
 
 
 @app.post("/token/", response_model=schemas.Token)
-def login(
+async def login(
         db: Session = Depends(get_db),
         form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -160,11 +161,11 @@ async def create_user(
         user: schemas.User,
         db: Session = Depends(get_db)
 ):
-    return crud.create_user(db=db, user=user)
+    return await crud.create_user(db=db, user=user)
 
 
 @app.get("/users/me/", response_model=schemas.User)
-def read_me(
+async def read_me(
         token=Depends(oauth_2_scheme),
         db: Session = Depends(get_db)
 ):

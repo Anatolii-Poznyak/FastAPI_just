@@ -32,16 +32,17 @@ async def get_product_category(
         db: AsyncSession,
         product_category_id: int
 ):
-    return await db.run_sync(lambda session: session.query(models.DBProductCategory).filter(models.DBProductCategory.id == product_category_id).first())
-
-#TODO mb we can doi it by get_author_or_404?
+    stmt = select(models.DBProductCategory).where(models.DBProductCategory.id == product_category_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
 
 async def delete_product_category(
         db: AsyncSession,
         product_category_id: int
 ):
-    await db.run_sync(lambda session: session.query(models.DBProductCategory).filter(models.DBProductCategory.id == product_category_id).delete())
+    stmt = delete(models.DBProductCategory).where(models.DBProductCategory.id == product_category_id)
+    await db.execute(stmt)
     await db.commit()
 
 
@@ -64,11 +65,16 @@ async def update_product_category(
         product_category_id: int,
         product_category: schemas.ProductCategoryUpdate
 ):
-    db_product_category = await db.run_sync(lambda session: session.query(models.DBProductCategory).filter(models.DBProductCategory.id == product_category_id).first())
-    db_product_category.name = product_category.name
-    db.add(db_product_category)
-    await db.commit()
-    await db.refresh(db_product_category)
+    stmt = select(models.DBProductCategory).where(models.DBProductCategory.id == product_category_id)
+    result = await db.execute(stmt)
+    db_product_category = result.scalar_one_or_none()
+
+    if db_product_category:
+        db_product_category.name = product_category.name
+        db.add(db_product_category)
+        await db.commit()
+        await db.refresh(db_product_category)
+
     return db_product_category
 
 
