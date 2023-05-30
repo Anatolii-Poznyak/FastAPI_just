@@ -38,11 +38,11 @@ async def read_categories(
 
 
 @app.get("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
-def read_single_category(
+async def read_single_category(
         product_category_id: int,
         db: Session = Depends(get_db)
 ):
-    return crud.get_product_category(db=db, product_category_id=product_category_id)
+    return await crud.get_product_category(db=db, product_category_id=product_category_id)
 #TODO i can make if product_cat is none: raise HTTPException404 "Product not found". where i need to make this validation?
 
 
@@ -55,22 +55,24 @@ async def create_category(
 
 
 @app.delete("/just/product-categories/{product_category_id}/")
-def delete_single_category(
+async def delete_single_category(
         product_category_id: int,
         db: Session = Depends(get_db)
 ):
-    return crud.get_product_category(db=db, product_category_id=product_category_id)
+    return await crud.delete_product_category(db=db, product_category_id=product_category_id)
 
 
 @app.put("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
-def update_category(
+async def update_category(
         product_category: schemas.ProductCategoryUpdate,
         product_category_id: int,
         db: Session = Depends(get_db)
 ):
-    db_product_category = crud.update_product_category(product_category=product_category,
-                                                       product_category_id=product_category_id,
-                                                       db=db)
+    db_product_category = await crud.update_product_category(
+        product_category=product_category,
+        product_category_id=product_category_id,
+        db=db
+    )
     return db_product_category
 
 
