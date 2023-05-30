@@ -2,16 +2,22 @@ from sqlalchemy.orm import Session
 from db import models
 import schemas
 from security import get_password_hash
+from sqlalchemy import select, delete, update
+from sqlalchemy.orm import Session
+from db import models
+import schemas
+from security import get_password_hash
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def get_product_category_list(
-        db: Session,
+async def get_product_category_list(
+        db: AsyncSession,
         limit: int = 10,
         name: str = None
 ):
-    queryset = db.query(models.DBProductCategory).limit(limit).all()
+    queryset = await db.run_sync(lambda session: session.query(models.DBProductCategory).limit(limit).all())
     if name:
-        return queryset.filter(models.DBProductCategory.name.icontains(name)).all()
+        return await db.run_sync(lambda: queryset.filter(models.DBProductCategory.name.icontains(name)).all())
     return queryset
 
 
@@ -34,17 +40,23 @@ def delete_product_category(
     db.commit()
 
 
-def create_product_category(
-        db: Session,
+async def create_product_category(
+        db: AsyncSession,
         product_category: schemas.ProductCategoryCreate
 ):
     db_product_category = models.DBProductCategory(
         name=product_category.name
     )
     db.add(db_product_category)
-    db.commit()
-    db.refresh(db_product_category)
+    await db.commit()
+    await db.refresh(db_product_category)
 
+    created_category = schemas.ProductCategory(
+        id=db_product_category.id,
+        name=db_product_category.name
+    )
+
+    return created_category
 
 def update_product_category(
         db: Session,

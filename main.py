@@ -7,7 +7,7 @@ from starlette import status
 
 import crud
 import schemas
-from db.engine import SessionLocal
+from db.engine import async_session
 from security import (
     create_access_token,
     oauth_2_scheme,
@@ -19,22 +19,22 @@ from security import (
 app = FastAPI()
 
 
-def get_db() -> Session:
-    db = SessionLocal()
+async def get_db() -> Session:
+    db = async_session()
 
     try:
         yield db
     finally:
-        db.close()
+        await db.close()
 
 
 @app.get("/just/product-categories/", response_model=list[schemas.ProductCategory])
-def read_categories(
-        db: Session = Depends(get_db),
-        limit: int = 10,
-        name: str | None = None
+async def read_categories(
+   db: Session = Depends(get_db),
+   limit: int = 10,
+   name: str | None = None
 ):
-    return crud.get_product_category_list(db=db, limit=limit, name=name)
+    return await crud.get_product_category_list(db=db, limit=limit, name=name)
 
 
 @app.get("/just/product-categories/{product_category_id}/", response_model=schemas.ProductCategory)
@@ -46,12 +46,12 @@ def read_single_category(
 #TODO i can make if product_cat is none: raise HTTPException404 "Product not found". where i need to make this validation?
 
 
-@app.post("/just/product-categories/", response_model=schemas.ProductCategoryCreate)
-def create_category(
+@app.post("/just/product-categories/", response_model=schemas.ProductCategory)
+async def create_category(
         product_category: schemas.ProductCategoryCreate,
         db: Session = Depends(get_db)
 ):
-    return crud.create_product_category(db=db, product_category=product_category)
+    return await crud.create_product_category(db=db, product_category=product_category)
 
 
 @app.delete("/just/product-categories/{product_category_id}/")

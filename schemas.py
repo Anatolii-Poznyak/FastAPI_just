@@ -19,7 +19,7 @@ class ProductCategory(ProductCategoryBase):
     id: int
 
     class Config:
-        orm_model = True
+        orm_mode = True
 
 
 class ProductBase(BaseModel):
