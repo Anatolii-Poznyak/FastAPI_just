@@ -101,16 +101,20 @@ async def get_product_list(
     return queryset
 
 
-def get_product(db: Session, product_id: int):
-    return db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
+async def get_product(db: AsyncSession, product_id: int):
+    stmt = select(models.DBProduct).options(selectinload(models.DBProduct.product_category)).where(models.DBProduct.id == product_id)
+    result = await db.execute(stmt)
+    db_product = result.scalar_one_or_none()
+    return schemas.Product.from_orm(db_product) if db_product else None
 
 
-def delete_product(db: Session, product_id: int):
-    db.query(models.DBProduct).filter(models.DBProduct.id == product_id).delete()
-    db.commit()
+async def delete_product(db: AsyncSession, product_id: int):
+    stmt = delete(models.DBProduct).where(models.DBProduct.id == product_id)
+    await db.execute(stmt)
+    await db.commit()
 
 
-def create_product(db: Session, product: schemas.ProductCreate):
+async def create_product(db: AsyncSession, product: schemas.ProductCreate):
     db_product = models.DBProduct(
         name=product.name,
         description=product.description,
@@ -120,36 +124,32 @@ def create_product(db: Session, product: schemas.ProductCreate):
     )
 
     db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
+    await db.commit()
+    await db.refresh(db_product)
     return db_product
 
 
-def update_product(db: Session, product: schemas.ProductUpdate, product_id: int):
-    db_product = db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
-    db_product.name = product.name
-    db_product.description = product.description
-    db_product.price = product.price
-    db_product.created_at = product.created_at
-#TODO db.add? Am I Sure?
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+async def update_product(db: AsyncSession, product: schemas.ProductUpdate, product_id: int):
+    stmt = update(models.DBProduct).where(models.DBProduct.id == product_id).values(
+        name=product.name,
+        description=product.description,
+        price=product.price,
+        created_at=product.created_at,
+        product_category_id=product.product_category_id
+    )
+    await db.execute(stmt)
+    await db.commit()
+
+    return await get_product(db, product_id)
 
 
-def partial_update_product(db: Session, product: schemas.ProductPartialUpdate, product_id: int):
-    db_product = db.query(models.DBProduct).filter(models.DBProduct.id == product_id).first()
-    db_product.name = product.name if product.name else db_product.name
-    db_product.description = product.description if product.description else db_product.description
-    db_product.price = product.price if product.price else db_product.price
-    db_product.created_at = product.created_at if product.created_at else db_product.created_at
-    db_product.category_id = product.product_category_id if product.product_category_id else db_product.product_category_id
+async def partial_update_product(db: AsyncSession, product: schemas.ProductPartialUpdate, product_id: int):
+    update_dict = product.dict(exclude_unset=True)
+    stmt = update(models.DBProduct).where(models.DBProduct.id == product_id).values(**update_dict)
+    await db.execute(stmt)
+    await db.commit()
 
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    return await get_product(db, product_id)
 
 
 def create_user(db: Session, user: schemas.User):

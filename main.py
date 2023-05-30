@@ -31,7 +31,7 @@ async def get_db() -> Session:
 
 @app.get("/just/product-categories/", response_model=list[schemas.ProductCategory])
 async def read_categories(
-   db: Session = Depends(get_db),
+   db: AsyncSession = Depends(get_db),
    limit: int = 10,
    name: str | None = None
 ):
@@ -108,12 +108,12 @@ async def create_product(
     return await crud.create_product(db=db, product=product)
 
 
-@app.delete("/just/products/{product_id)/")
+@app.delete("/just/products/{product_id}/")
 async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
-    await crud.delete_product(product_id=product_id, db=db)
+    await crud.delete_product(db, product_id)
 
 
-@app.put("/just/products/{product_id}/", response_model=schemas.ProductUpdate)
+@app.put("/just/products/{product_id}/", response_model=schemas.Product)
 async def update_product(
         product_id: int,
         product: schemas.ProductUpdate,
@@ -122,13 +122,15 @@ async def update_product(
     return await crud.update_product(product_id=product_id, product=product, db=db)
 
 
-@app.patch("/just/products/{product_id)/", response_model=schemas.ProductPartialUpdate)
+@app.patch("/just/products/{product_id}/", response_model=schemas.Product)
 async def partial_update_product(
         product_id: int,
         product: schemas.ProductPartialUpdate,
         db: AsyncSession = Depends(get_db)
 ):
-    return await crud.partial_update_product(product_id=product_id, product=product, db=db)
+    db_product = await crud.partial_update_product(db, product, product_id)
+
+    return db_product
 
 
 @app.post("/token/", response_model=schemas.Token)
