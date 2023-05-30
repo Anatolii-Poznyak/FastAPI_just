@@ -77,13 +77,13 @@ async def update_category(
 
 
 @app.get("/just/products/", response_model=list[schemas.Product])
-def read_products(
+async def read_products(
         db: Session = Depends(get_db),
         limit: int = 10,
         name: str = None,
         product_category_id: int = None
 ):
-    return crud.get_product_list(
+    return await crud.get_product_list(
         db=db,
         limit=limit,
         name=name,
@@ -99,7 +99,7 @@ def read_single_product(
     return crud.get_product(db=db, product_id=product_id)
 
 
-@app.post("/just/products/", response_model=schemas.ProductCreate)
+@app.post("/just/products/", response_model=schemas.Product)
 def create_product(
         product: schemas.ProductCreate,
         db: Session = Depends(get_db)

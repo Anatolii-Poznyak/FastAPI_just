@@ -27,7 +27,7 @@ class ProductBase(BaseModel):
     description: str
     price: int
     created_at: date
-    product_category: ProductCategoryBase
+    product_category_id: int
 
 
 class ProductCreate(ProductBase):

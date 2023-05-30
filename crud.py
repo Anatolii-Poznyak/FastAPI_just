@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from db import models
 import schemas
 from security import get_password_hash
@@ -11,13 +11,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_product_category_list(
-        db: AsyncSession,
-        limit: int = 10,
-        name: str = None
+    db: AsyncSession,
+    limit: int = 10,
+    name: str = None
 ):
-    queryset = await db.run_sync(lambda session: session.query(models.DBProductCategory).limit(limit).all())
+    stmt = select(models.DBProductCategory).limit(limit)
+    result = await db.execute(stmt)
+    queryset = result.scalars().all()
+
     if name:
-        return await db.run_sync(lambda: queryset.filter(models.DBProductCategory.name.icontains(name)).all())
+        stmt = stmt.filter(models.DBProductCategory.name.ilike(f'%{name}%'))
+        result = await db.execute(stmt)
+        queryset = result.scalars().all()
+
     return queryset
 
 
@@ -66,17 +72,25 @@ async def update_product_category(
     return db_product_category
 
 
-def get_product_list(
-        db: Session,
-        limit: int = 10,
-        name: str = None,
-        product_category_id: int = None
+async def get_product_list(
+    db: AsyncSession,
+    limit: int = 10,
+    name: str = None,
+    product_category_id: int = None
 ):
-    queryset = db.query(models.DBProduct).limit(limit).all()
+    stmt = select(models.DBProduct).options(selectinload(models.DBProduct.product_category)).limit(limit)
+    result = await db.execute(stmt)
+    queryset = result.scalars().all()
+
     if name:
-        return queryset.filter(models.DBProduct.name.icontains(name)).all()
+        stmt = stmt.filter(models.DBProduct.name.ilike(f'%{name}%'))
+        result = await db.execute(stmt)
+        queryset = result.scalars().all()
+
     if product_category_id:
-        return queryset.filter(models.DBProduct.product_category_id == product_category_id).first()
+        stmt = stmt.filter(models.DBProduct.product_category_id == product_category_id)
+        result = await db.execute(stmt)
+        queryset = result.scalars().first()
 
     return queryset
 
