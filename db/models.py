@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from db.engine import Base
@@ -9,10 +9,13 @@ class DBProductCategory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
+    products = relationship("DBProduct",
+                            back_populates="product_category",
+                            cascade="all, delete-orphan")
 
 
 class DBProduct(Base):
-    __table_name__ = "products"
+    __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
@@ -22,3 +25,14 @@ class DBProduct(Base):
     product_category_id = Column(Integer, ForeignKey("categories.id"))
 
     product_category = relationship(DBProductCategory)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(63), unique=True, index=True)
+    email = Column(String(63), nullable=True)
+    full_name = Column(String(63), nullable=True)
+    hashed_password = Column(String, nullable=False)
+    disabled = Column(Boolean, default=False)
