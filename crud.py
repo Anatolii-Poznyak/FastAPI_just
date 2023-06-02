@@ -1,7 +1,4 @@
-from sqlalchemy.orm import Session, selectinload
-from db import models
-import schemas
-from security import get_password_hash
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session
 from db import models
@@ -16,13 +13,13 @@ async def get_product_category_list(
     name: str = None
 ):
     stmt = select(models.DBProductCategory).limit(limit)
-    result = await db.execute(stmt)
-    queryset = result.scalars().all()
+
 
     if name:
         stmt = stmt.filter(models.DBProductCategory.name.ilike(f'%{name}%'))
-        result = await db.execute(stmt)
-        queryset = result.scalars().all()
+
+    result = await db.execute(stmt)
+    queryset = result.scalars().all()
 
     return queryset
 
@@ -85,18 +82,15 @@ async def get_product_list(
     product_category_id: int = None
 ):
     stmt = select(models.DBProduct).options(selectinload(models.DBProduct.product_category)).limit(limit)
-    result = await db.execute(stmt)
-    queryset = result.scalars().all()
 
     if name:
         stmt = stmt.filter(models.DBProduct.name.ilike(f'%{name}%'))
-        result = await db.execute(stmt)
-        queryset = result.scalars().all()
 
     if product_category_id:
         stmt = stmt.filter(models.DBProduct.product_category_id == product_category_id)
-        result = await db.execute(stmt)
-        queryset = result.scalars().first()
+
+    result = await db.execute(stmt)
+    queryset = result.scalars().first()
 
     return queryset
 
