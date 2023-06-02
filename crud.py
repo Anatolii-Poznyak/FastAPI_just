@@ -14,7 +14,6 @@ async def get_product_category_list(
 ):
     stmt = select(models.DBProductCategory).limit(limit)
 
-
     if name:
         stmt = stmt.filter(models.DBProductCategory.name.ilike(f'%{name}%'))
 
